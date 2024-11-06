@@ -1,8 +1,10 @@
 from bot.actions import BotFreelancerActions
 from bot.config import DriverActions
+import logging
+
 
 def main():
-    # Inicializa el controlador
+    
     skills = []
     links = []
     categories = []
@@ -17,7 +19,7 @@ def main():
     while True:
         skill = input("Insert your skill, for finish insert 'q' ... :")
         if skill == 'q':
-            skills_prompt = " ".join(skills)
+            skills_prompt = ", ".join(skills)
             break
         skills.append(skill)
         
@@ -35,17 +37,20 @@ def main():
         while True:
             category = input("\nEnter a job category or q for finish: ")
             if 'q' in category:
+                # Inicializa el controlador
                 instance_driver = DriverActions()
                 driver = instance_driver.init_driver()
+                instance_automation_browser = BotFreelancerActions()
                 print('Log in in your Freelancer Account, and press Enter for continue...')
                 input()
                 for category in categories:
                     query_category = category.replace(' ', '%20')
                     driver.get(f'https://www.freelancer.com.ar/search/projects?q={query_category}')
-                    projects_urls = BotFreelancerActions.scrape_projects(driver)
+                    
+                    projects_urls = instance_automation_browser.scrape_projects(driver)
                     for project_url in projects_urls:
                         driver.get(project_url)
-                        BotFreelancerActions.apply_to_a_job(driver, skills_prompt)
+                        instance_automation_browser.apply_to_a_job(driver, skills_prompt)
                 break
             categories.append(category)
             print(f"Category '{category}' add.")
@@ -54,13 +59,16 @@ def main():
         while True:
             link = input("Enter the job url, for finish enter 'q': ")
             if 'q' == link:
+                # Inicializa el controlador
                 instance_driver = DriverActions()
                 driver = instance_driver.init_driver()
+                instance_automation_browser = BotFreelancerActions()
                 print('Log in in your Freelancer Account, and press Enter for continue...')
                 input()
                 for url in links:
                     driver.get(url)
-                    BotFreelancerActions.apply_to_a_job(driver, skills_prompt)
+                    instance_automation_browser.apply_to_a_job(driver, skills_prompt)
+
                 break
 
             if not 'www.freelancer.com' in link:
